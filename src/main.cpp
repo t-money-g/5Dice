@@ -1,30 +1,45 @@
 // ==========================================================================
 //
-// Your license here.
+// License, schmlicense! This is for learning!
 //
 // ==========================================================================
 
-// Macro to determine whether to run tests or skip the runner
-#define TESTS_ENABLED 1
-#define CATCH_CONFIG_RUNNER
-#include <catch2/catch.hpp>
-#include <iostream>
-#include "empty.h"
+// Olc Template
 
+#define OLC_PGE_APPLICATION
+#include "olcPixelGameEngine.h"
 
-int main(int argc, char* argv[])
+class FiveDice : public olc::PixelGameEngine
 {
-#if  TESTS_ENABLED == 1
-    int result = Catch::Session().run(argc, argv);
-#endif
-
-    std::cout << "Good day!" << std::endl;
-
-#if TESTS_ENABLED == 1
-    return result;
-#else
-    return 0;
-#endif
-
+public:
+FiveDice()
+{
+    sAppName = "Five Dice";
 }
 
+public:
+bool OnUserCreate() override
+{
+// Called once at the start, so create things here
+return true;
+}
+
+bool OnUserUpdate(float fElapsedTime) override
+{
+// called once per frame
+for (int x = 0; x < ScreenWidth(); x++)
+for (int y = 0; y < ScreenHeight(); y++)
+Draw(x, y, olc::Pixel(rand() % 255, rand() % 255, rand()% 255));
+return true;
+}
+};
+
+
+int main()
+{
+    FiveDice demo;
+    if (demo.Construct(256, 240, 4, 4))
+        demo.Start();
+
+    return 0;
+}

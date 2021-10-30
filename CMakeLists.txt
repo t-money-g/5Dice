@@ -40,7 +40,7 @@ FetchContent_MakeAvailable(Catch2)
 file ( GLOB SOURCES "./src/*.cpp" "./include/*.h" )
 add_executable( ${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries( ${PROJECT_NAME} Catch2::Catch2)
+#target_link_libraries( ${PROJECT_NAME} Catch2::Catch2)
 
 # Set the default project 
 set_property( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} )
