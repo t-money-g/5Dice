@@ -156,13 +156,91 @@ public:
 
 
         int nScore_AllDice = std::accumulate(vRolled.begin(), vRolled.end(), 0);
-        int nScore_CountOnes = std::count(vRolled.begin(), vRolled.end(), 1) * 1;
-        int nScore_CountTwos = std::count(vRolled.begin(), vRolled.end(), 2) * 2;
-        int nScore_CountThrees = std::count(vRolled.begin(), vRolled.end(), 3) * 3;
-        int nScore_CountFours = std::count(vRolled.begin(), vRolled.end(), 4) * 4;
-        int nScore_CountFives = std::count(vRolled.begin(), vRolled.end(), 1) * 1;
-        int nScore_CountSixes = std::count(vRolled.begin(), vRolled.end(), 1) * 1;
+        int nScore_CountOnes =      std::count(vRolled.begin(), vRolled.end(), 1) * 1;
+        int nScore_CountTwos =      std::count(vRolled.begin(), vRolled.end(), 2) * 2;
+        int nScore_CountThrees =    std::count(vRolled.begin(), vRolled.end(), 3) * 3;
+        int nScore_CountFours =     std::count(vRolled.begin(), vRolled.end(), 4) * 4;
+        int nScore_CountFives =     std::count(vRolled.begin(), vRolled.end(), 5) * 5;
+        int nScore_CountSixes =     std::count(vRolled.begin(), vRolled.end(), 6) * 6;
 
+
+        int nScore_ThreeOfAKind = 0;
+        int nScore_FourOfAKind = 0;
+        int nScore_FiveOfAKind = 0;
+        int nScore_SmallStraight = 0;
+        int nScore_LargeStraight = 0;
+        int nScore_FullHouse = 0;
+
+        auto PatternMatch = [&](const std::vector<uint8_t> vDice, const std::string& sPattern) -> bool
+        {
+            // nnnnn                        - Yahtzee
+            // nnnnn? , ?nnnn               - four of a kind
+            // nnn??,   ??nnn ?nnn?         - three of a kind
+            // 1234?, ?2345, 2345?, ?3456   - Small Straight
+            // 12345, 23456                 - Large Straight
+            // nnn?? & ???nn, nn??? & ??nnn - Full House
+
+            bool bMatch = true;
+            uint8_t n = 0;
+
+            for (size_t idx = 0; idx < 5; ++idx)
+            {
+                if (sPattern[idx] =='n')
+                {
+                    if(n == 0)
+                    {
+                        n = vDice[idx];
+                    }
+                    else
+                    {
+                        bMatch &=  (vDice[idx] == n);
+                    }
+
+                }
+                else if(sPattern[idx] == '?')
+                {
+                    bMatch &= true;
+                }
+                else // is Face Value
+                {
+                    bMatch &= ((sPattern[idx] - '0') == vDice[idx]);
+                }
+            }
+            return bMatch;
+        };
+        // nnnnn                        - Yahtzee
+        if(PatternMatch(vRolled, "nnnnn")) // yahtzee
+        {
+            nScore_FiveOfAKind = 50;
+        }
+
+        // nnnnn? , ?nnnn               - four of a kind
+        if(PatternMatch(vRolled, "nnnn?") || PatternMatch(vRolled,"?nnnn"))
+        {
+            nScore_FourOfAKind = 4 * vRolled[2];
+        }
+        // nnn??,   ??nnn ?nnn?         - three of a kind
+        if(PatternMatch(vRolled, "nnn??") || PatternMatch(vRolled,"??nnn"))
+        {
+            nScore_ThreeOfAKind = 3 * vRolled[2];
+        }
+
+        // 1234?, ?2345, 2345?, ?3456   - Small Straight
+        if(PatternMatch(vRolled, "1234?") || PatternMatch(vRolled,"2345?") || PatternMatch(vRolled ,"?3456"))
+        {
+            nScore_SmallStraight = 30;
+        }
+        // 12345, 23456                 - Large Straight
+        if(PatternMatch(vRolled, "12345") || PatternMatch(vRolled,"23456"))
+        {
+            nScore_LargeStraight = 40;
+        }
+        // nnn?? & ???nn, nn??? & ??nnn - Full House
+        if(( PatternMatch(vRolled, "nnn??") && PatternMatch(vRolled, "???nn")) ||
+           ( PatternMatch(vRolled,"??nnn") && PatternMatch(vRolled ,"nn???")))
+        {
+             nScore_FullHouse = 25;
+        }
 
         Clear(olc::DARK_GREEN);
 
@@ -171,6 +249,23 @@ public:
         DrawDie({150, 10}, vRolled[2]);
         DrawDie({220, 10}, vRolled[3]);
         DrawDie({290, 10}, vRolled[4]);
+
+
+        int nOffsetY = 100;
+        DrawString(10, nOffsetY += 10, "Total Ones      : "  + std::to_string(nScore_CountOnes));
+        DrawString(10, nOffsetY += 10, "Total Twos      : "  + std::to_string(nScore_CountTwos));
+        DrawString(10, nOffsetY += 10, "Total Threes    : "  + std::to_string(nScore_CountThrees));
+        DrawString(10, nOffsetY += 10, "Total Fours     : "  + std::to_string(nScore_CountFours));
+        DrawString(10, nOffsetY += 10, "Total Fives     : "  + std::to_string(nScore_CountFives));
+        DrawString(10, nOffsetY += 10, "Total Sixes     : "  + std::to_string(nScore_CountSixes));
+        DrawString(10, nOffsetY += 10, "Three of A kind : "  + std::to_string(nScore_ThreeOfAKind));
+        DrawString(10, nOffsetY += 10, "Four of A kind  : "  + std::to_string(nScore_FourOfAKind));
+        DrawString(10, nOffsetY += 10, "Full House      : "  + std::to_string(nScore_FullHouse));
+        DrawString(10, nOffsetY += 10, "Small Straight  : "  + std::to_string(nScore_SmallStraight));
+        DrawString(10, nOffsetY += 10, "Large Straight  : "  + std::to_string(nScore_LargeStraight));
+        DrawString(10, nOffsetY += 10, "Five of A kind  : "  + std::to_string(nScore_FiveOfAKind));
+        DrawString(10, nOffsetY += 10, "Large Straight  : "  + std::to_string(nScore_LargeStraight));
+        DrawString(10, nOffsetY += 10, "Chance          : "  + std::to_string(nScore_AllDice));
 
         return true;
     }
